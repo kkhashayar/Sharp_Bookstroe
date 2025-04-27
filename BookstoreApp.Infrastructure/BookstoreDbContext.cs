@@ -23,13 +23,13 @@ public class BookstoreDbContext : DbContext
         modelBuilder.Entity<Author>().HasData(
             new Author
             {
-                Id = 1,
+                
                 AuthorId = georgeOrwellId,
                 Name = "George Orwell"
             },
             new Author
             {
-                Id = 2,
+                
                 AuthorId = rowlingId,
                 Name = "J.K. Rowling"
             }
