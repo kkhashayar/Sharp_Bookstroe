@@ -11,4 +11,7 @@ public class Book
     public int CategoryId { get; set; }
     public int? Price { get; set; }
     public int StockQuantity { get; set; }
+
+    public Author? Author { get; set; }  
+
 }

@@ -1,5 +1,4 @@
-﻿
-using BookstoreApp.Domain.Entities;
+﻿using BookstoreApp.Domain.Entities;
 using BookstoreApp.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -20,39 +19,47 @@ public class BookRepository : IBookRepository
     public async Task<List<Book>> GetAllAsync()
     {
         var result = await _context.Books.ToListAsync();
-        if(result is null || result.Count == 0) return new List<Book>();    
+        if (result is null || result.Count == 0)
+        {
+            _logger.LogInformation($"No record found while trying to fetch List of books at{DateTime.UtcNow}");
+            return new List<Book>();
+        }
+
+            
         return result;
     }
 
     public async Task<Book> GetByAuthorIdAsync(Guid AuthorId)
     {
         var result = await _context.Books.Where(book => book.AuthorId == AuthorId).FirstOrDefaultAsync();
-        if (result is null) return null; 
+        if (result is null) 
+        {
+            _logger.LogInformation($"No record while trying to fetch Book by authorId at {DateTime.UtcNow}");
+            return null;
+        }  
         return result;
     }
 
     public async Task<Book> GetByBookIdAsync(Guid Id)
     {
         var result = await _context.Books.Where(book => book.BookId == Id).FirstOrDefaultAsync();
-        if (result is null) return null;
+        if (result is null) 
+        {
+            _logger.LogInformation($"No record while trying to fetch Book by Book Id at {DateTime.UtcNow}");
+            return null;
+        } 
         return result;
     }
 
-    /*
-        public int Id { get; set; }
-        public Guid BookId { get; set; }
-        public string? Title { get; set; }
-        public string? ISBN { get; set; }
-        public Guid AuthorId { get; set; }
-        public string AuthorName { get; set; }
-        public int CategoryId { get; set; }
-        public int? Price { get; set; }
-        public int StockQuantity { get; set; }
-     */
     public async Task<Book> UpdateBookAsync(Guid bookToUpdateId, Book updatedBook)
     {
         var bookToUpdate = await _context.Books.FirstOrDefaultAsync(b => b.BookId == bookToUpdateId);
-        if (bookToUpdate is null) return null;
+        if (bookToUpdate is null) 
+        {
+            _logger.LogInformation($"{bookToUpdateId} not found at {DateTime.UtcNow}");
+            return null;
+        }
+        
 
         bookToUpdate.Title = updatedBook.Title;
         bookToUpdate.ISBN = updatedBook.ISBN;
@@ -70,14 +77,20 @@ public class BookRepository : IBookRepository
     public async Task<bool> AddBook(Book book)
     {
         await _context.Books.AddAsync(book);    
+        // TODO: should track save change for correct result
         await _context.SaveChangesAsync();
         return true;
     }
 
     public async Task<bool> DeleteBookAsync(int Id)
     {
-        var bookToRemove = await _context.Books.Where(book => book.Id == Id).FirstOrDefaultAsync(); 
-        if(bookToRemove is null) return false;
+        var bookToRemove = await _context.Books.Where(book => book.Id == Id).FirstOrDefaultAsync();
+        if (bookToRemove is null) 
+        {
+            _logger.LogInformation($"{bookToRemove} Not found at {DateTime.UtcNow}");
+            return false;
+        }
+        
 
         _context.Remove(bookToRemove);   
         await _context.SaveChangesAsync();
