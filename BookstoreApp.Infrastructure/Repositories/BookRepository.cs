@@ -17,6 +17,35 @@ public class BookRepository : IBookRepository
         _logger = logger;
     }
 
-    
-    
+    public async Task<List<Book>> GetAllAsync()
+    {
+        var result = await _context.Books.ToListAsync();
+        if(result is null || result.Count == 0) return new List<Book>();    
+        return result;
+    }
+
+    public async Task<Book> GetByAuthorIdAsyncAsync(Guid AuthorId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Book> GetByBookIdAsync(Guid Id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Book> UpdateBookAsync(Book book)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> AddBook(Book book)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Book> DeleteBookAsync(int Id)
+    {
+        throw new NotImplementedException();
+    }
 }
