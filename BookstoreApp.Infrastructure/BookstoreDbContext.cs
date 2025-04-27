@@ -18,7 +18,9 @@ public class BookstoreDbContext : DbContext
 /* Reminder
  * 
  * 
-   dotnet ef migrations add GuidId_In_Book_And_Author --project ../BookstoreApp.Infrastructure --startup-project .
-   dotnet ef database update --project ../BookstoreApp.Infrastructure --startup-project .
+  
+   dotnet ef migrations add AuthorName_In_Book --project ../BookstoreApp.Infrastructure --startup-project ../BookstoreApp.Api
+  
+   dotnet ef database update --project ../BookstoreApp.Infrastructure --startup-project ../BookstoreApp.Api
  * 
  */
