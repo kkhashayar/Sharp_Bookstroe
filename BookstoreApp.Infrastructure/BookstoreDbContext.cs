@@ -15,7 +15,7 @@ public class BookstoreDbContext : DbContext
     public DbSet<Book> Books { get; set; }  
 }
 
-/*
+/* Reminder
  * 
  * 
    dotnet ef migrations add GuidId_In_Book_And_Author --project ../BookstoreApp.Infrastructure --startup-project .
