@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookstoreApp.Infrastructure.Migrations
 {
     [DbContext(typeof(BookstoreDbContext))]
-    [Migration("20250427065418_GuidId_In_Book_And_Author")]
-    partial class GuidId_In_Book_And_Author
+    [Migration("20250427073730_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,8 +33,12 @@ namespace BookstoreApp.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AuthoId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AuthoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AuthorName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("BookId")
                         .HasColumnType("uniqueidentifier");
