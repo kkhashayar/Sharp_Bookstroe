@@ -24,28 +24,63 @@ public class BookRepository : IBookRepository
         return result;
     }
 
-    public async Task<Book> GetByAuthorIdAsyncAsync(Guid AuthorId)
+    public async Task<Book> GetByAuthorIdAsync(Guid AuthorId)
     {
-        throw new NotImplementedException();
+        var result = await _context.Books.Where(book => book.AuthorId == AuthorId).FirstOrDefaultAsync();
+        if (result is null) return null; 
+        return result;
     }
 
-    public Task<Book> GetByBookIdAsync(Guid Id)
+    public async Task<Book> GetByBookIdAsync(Guid Id)
     {
-        throw new NotImplementedException();
+        var result = await _context.Books.Where(book => book.BookId == Id).FirstOrDefaultAsync();
+        if (result is null) return null;
+        return result;
     }
 
-    public Task<Book> UpdateBookAsync(Book book)
+    /*
+        public int Id { get; set; }
+        public Guid BookId { get; set; }
+        public string? Title { get; set; }
+        public string? ISBN { get; set; }
+        public Guid AuthorId { get; set; }
+        public string AuthorName { get; set; }
+        public int CategoryId { get; set; }
+        public int? Price { get; set; }
+        public int StockQuantity { get; set; }
+     */
+    public async Task<Book> UpdateBookAsync(Guid bookToUpdateId, Book updatedBook)
     {
-        throw new NotImplementedException();
+        var bookToUpdate = await _context.Books.FirstOrDefaultAsync(b => b.BookId == bookToUpdateId);
+        if (bookToUpdate is null) return null;
+
+        bookToUpdate.Title = updatedBook.Title;
+        bookToUpdate.ISBN = updatedBook.ISBN;
+        bookToUpdate.AuthorName = updatedBook.AuthorName;
+        bookToUpdate.Price = updatedBook.Price;
+        bookToUpdate.CategoryId = updatedBook.CategoryId;   
+        bookToUpdate.StockQuantity = updatedBook.StockQuantity;
+        bookToUpdate.Price = updatedBook.Price;
+
+        await _context.SaveChangesAsync();
+        return bookToUpdate;
     }
 
-    public Task<bool> AddBook(Book book)
+
+    public async Task<bool> AddBook(Book book)
     {
-        throw new NotImplementedException();
+        await _context.Books.AddAsync(book);    
+        await _context.SaveChangesAsync();
+        return true;
     }
 
-    public Task<Book> DeleteBookAsync(int Id)
+    public async Task<bool> DeleteBookAsync(int Id)
     {
-        throw new NotImplementedException();
+        var bookToRemove = await _context.Books.Where(book => book.Id == Id).FirstOrDefaultAsync(); 
+        if(bookToRemove is null) return false;
+
+        _context.Remove(bookToRemove);   
+        await _context.SaveChangesAsync();
+        return true;   
     }
 }
