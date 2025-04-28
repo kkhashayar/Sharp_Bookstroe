@@ -28,7 +28,16 @@ public class BookRepository : IBookRepository
             
         return result;
     }
-
+    public async Task<Book> GetByTitleAsync(string Title)
+    {
+        var result = await _context.Books.Where(book => book.Title == Title).FirstOrDefaultAsync(); 
+        if(result is null)
+        {
+            _logger.LogInformation($"No record found while trying to fetch a book by title:{Title} at:{DateTime.UtcNow}");
+            return result; // Which is null
+        }
+        return result;  
+    }
     public async Task<Book> GetByAuthorIdAsync(Guid AuthorId)
     {
         var result = await _context.Books.Where(book => book.AuthorId == AuthorId).FirstOrDefaultAsync();
@@ -96,4 +105,6 @@ public class BookRepository : IBookRepository
         await _context.SaveChangesAsync();
         return true;   
     }
+
+   
 }
