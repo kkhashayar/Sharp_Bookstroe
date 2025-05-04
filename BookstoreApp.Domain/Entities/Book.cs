@@ -1,4 +1,6 @@
-﻿namespace BookstoreApp.Domain.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BookstoreApp.Domain.Entities;
 
 public class Book
 {
@@ -13,6 +15,7 @@ public class Book
     public int? Price { get; set; }
     public int StockQuantity { get; set; }
     public Author? Author { get; set; }
+    [MaxLength(200)]
     public string? Description { get; set; }
 
 }
