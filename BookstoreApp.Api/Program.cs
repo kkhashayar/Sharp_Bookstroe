@@ -1,3 +1,4 @@
+using BookstoreApp.Application.Mappers;
 using BookstoreApp.Infrastructure;
 using BookstoreApp.Infrastructure.Interfaces;
 using BookstoreApp.Infrastructure.Repositories;
@@ -20,6 +21,11 @@ builder.Services.AddDbContext<BookstoreDbContext>(options =>
 // Register repositories
 builder.Services.AddTransient<IBookRepository, BookRepository>();
 builder.Services.AddTransient<IAuthorRepository, AuthorRepository>();
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+// Register AutoMappers 
+builder.Services.AddAutoMapper(typeof(BookAutoMappers).Assembly);
+builder.Services.AddAutoMapper(typeof(AuthorAutoMappers).Assembly);
 
 var app = builder.Build();
 

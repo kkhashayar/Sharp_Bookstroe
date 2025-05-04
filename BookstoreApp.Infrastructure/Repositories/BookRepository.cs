@@ -1,18 +1,23 @@
-﻿using BookstoreApp.Domain.Entities;
+﻿using AutoMapper;
+using BookstoreApp.Application.Mappers;
+using BookstoreApp.Domain.Dtos;
+using BookstoreApp.Domain.Entities;
 using BookstoreApp.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace BookstoreApp.Infrastructure.Repositories;
 
-public class BookRepository : IBookRepository
+public class BookRepository : IBookRepository 
 {
     private readonly BookstoreDbContext _context;
+    private readonly IMapper _mapper;
     private readonly ILogger<BookRepository> _logger;
 
-    public BookRepository(BookstoreDbContext context, ILogger<BookRepository> logger)
+    public BookRepository(BookstoreDbContext context, IMapper mapper ,ILogger<BookRepository> logger)
     {
         _context = context;
+        _mapper = mapper;
         _logger = logger;
     }
 
@@ -25,85 +30,97 @@ public class BookRepository : IBookRepository
             return new List<Book>();
         }
 
-            
+
         return result;
     }
     public async Task<Book> GetByTitleAsync(string Title)
     {
-        var result = await _context.Books.Where(book => book.Title == Title).FirstOrDefaultAsync(); 
-        if(result is null)
+        var result = await _context.Books.Where(book => book.Title == Title).FirstOrDefaultAsync();
+        if (result is null)
         {
             _logger.LogInformation($"No record found while trying to fetch a book by title:{Title} at:{DateTime.UtcNow}");
             return result; // Which is null
         }
-        return result;  
+        return result;
     }
     public async Task<Book> GetByAuthorIdAsync(Guid AuthorId)
     {
         var result = await _context.Books.Where(book => book.AuthorId == AuthorId).FirstOrDefaultAsync();
-        if (result is null) 
+        if (result is null)
         {
             _logger.LogInformation($"No record while trying to fetch Book by authorId at {DateTime.UtcNow}");
             return null;
-        }  
+        }
         return result;
     }
 
     public async Task<Book> GetByBookIdAsync(Guid Id)
     {
         var result = await _context.Books.Where(book => book.BookId == Id).FirstOrDefaultAsync();
-        if (result is null) 
+        if (result is null)
         {
             _logger.LogInformation($"No record while trying to fetch Book by Book Id at {DateTime.UtcNow}");
             return null;
-        } 
+        }
         return result;
     }
-
-    public async Task<Book> UpdateBookAsync(Guid bookToUpdateId, Book updatedBook)
+    public async Task<int> AddBookAsync(Book bookEntity)
     {
-        var bookToUpdate = await _context.Books.FirstOrDefaultAsync(b => b.BookId == bookToUpdateId);
-        if (bookToUpdate is null) 
+        var response = await _context.AddAsync(bookEntity);
+        var saveResponse = await  _context.SaveChangesAsync();
+
+        if (saveResponse != 1)
         {
-            _logger.LogInformation($"{bookToUpdateId} not found at {DateTime.UtcNow}");
+            _logger.LogError($"Something went wrong while trying to add new item into book repo at:{DateTime.UtcNow}");
+            return 0;
+        }
+        return saveResponse;
+
+    }
+    public async Task<Book> UpdateBookAsync(BookUpdateDto updateDto)
+    {
+        var bookToUpdate = await _context.Books.FirstOrDefaultAsync(b => b.BookId == updateDto.BookId);
+        if (bookToUpdate is null)
+        {
+            _logger.LogInformation($"{updateDto.BookId} not found at {DateTime.UtcNow}");
             return null;
         }
-        
 
-        bookToUpdate.Title = updatedBook.Title;
-        bookToUpdate.ISBN = updatedBook.ISBN;
-        bookToUpdate.AuthorName = updatedBook.AuthorName;
-        bookToUpdate.Price = updatedBook.Price;
-        bookToUpdate.CategoryId = updatedBook.CategoryId;   
-        bookToUpdate.StockQuantity = updatedBook.StockQuantity;
-        bookToUpdate.Price = updatedBook.Price;
+        // Sending to private method
+        UpdateBookValues(updateDto, bookToUpdate);
 
-        await _context.SaveChangesAsync();
+        var saveResponse = await _context.SaveChangesAsync();
+        if(saveResponse != 1)
+        {
+            _logger.LogError($"Something went wrong in process of updating the record with id:{updateDto.BookId}");
+            return null;
+        }
         return bookToUpdate;
     }
 
 
-    public async Task<bool> AddBook(Book book)
+    private void UpdateBookValues(BookUpdateDto updateDto, Book? bookToUpdate)
     {
-        await _context.Books.AddAsync(book);    
-        // TODO: should track save change for correct result
-        await _context.SaveChangesAsync();
-        return true;
+        bookToUpdate.Title = updateDto.Title;
+        bookToUpdate.ISBN = updateDto.ISBN;
+        bookToUpdate.AuthorName = updateDto.AuthorName;
+        bookToUpdate.Price = updateDto.Price;
+        bookToUpdate.CategoryId = updateDto.CategoryId;
+        bookToUpdate.StockQuantity = updateDto.StockQuantity;
+        bookToUpdate.Price = updateDto.Price;
+        _context.Books.Update(bookToUpdate);
     }
-
-    public async Task<bool> DeleteBookAsync(int Id)
+    public async Task<bool> DeleteBookAsync(Guid bookId)
     {
-        var bookToRemove = await _context.Books.Where(book => book.Id == Id).FirstOrDefaultAsync();
-        if (bookToRemove is null) 
+        var bookToRemove = await _context.Books.Where(book => book.BookId == bookId).FirstOrDefaultAsync();
+        if (bookToRemove is null)
         {
             _logger.LogInformation($"{bookToRemove} Not found at {DateTime.UtcNow}");
             return false;
         }
-        
-
-        _context.Remove(bookToRemove);   
+        _context.Remove(bookToRemove);
         await _context.SaveChangesAsync();
-        return true;   
+        return true;
     }
 
    
