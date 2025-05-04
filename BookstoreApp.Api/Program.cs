@@ -1,6 +1,7 @@
-
-
+using BookstoreApp.Application.Mappers;
 using BookstoreApp.Infrastructure;
+using BookstoreApp.Infrastructure.Interfaces;
+using BookstoreApp.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,9 +14,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
+// Registering db context
 builder.Services.AddDbContext<BookstoreDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectyion")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register repositories
+builder.Services.AddTransient<IBookRepository, BookRepository>();
+builder.Services.AddTransient<IAuthorRepository, AuthorRepository>();
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+// Register AutoMappers 
+builder.Services.AddAutoMapper(typeof(BookAutoMappers).Assembly);
+builder.Services.AddAutoMapper(typeof(AuthorAutoMappers).Assembly);
 
 var app = builder.Build();
 
